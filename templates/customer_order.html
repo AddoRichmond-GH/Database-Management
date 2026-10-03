@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Place Order - Addo Mart</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <header class="topbar">
+        <div class="topbar-left">
+            <img src="{{ url_for('static', filename='logo.png') }}" alt="Addo Mart Logo" class="topbar-logo">
+            <span class="topbar-title">Addo Mart</span>
+        </div>
+        <div class="topbar-right">
+            <span class="user-badge">{{ username }}</span>
+            <a href="{{ url_for('logout') }}" class="btn btn-danger btn-sm">Logout</a>
+        </div>
+    </header>
+
+    <div class="layout">
+        <aside class="sidebar">
+            <h3 class="sidebar-heading">Navigation</h3>
+            <nav class="sidebar-nav">
+                <a href="{{ url_for('customer_home') }}" class="sidebar-link">Home</a>
+                <a href="{{ url_for('customer_place_order') }}" class="sidebar-link active">Place Order</a>
+            </nav>
+        </aside>
+
+        <main class="main-content">
+            {% with messages = get_flashed_messages(with_categories=true) %}
+                {% if messages %}
+                    <div class="flash-messages">
+                        {% for category, message in messages %}
+                            <div class="flash {{ category }}">{{ message }}</div>
+                        {% endfor %}
+                    </div>
+                {% endif %}
+            {% endwith %}
+
+            <div class="table-header">
+                <div>
+                    <h1 class="page-title">Place a New Order</h1>
+                    <p class="page-subtitle">Click on a product card to add it to your cart.</p>
+                </div>
+                <a href="{{ url_for('customer_home') }}" class="btn btn-outline">Back to Home</a>
+            </div>
+
+            <form method="POST" action="{{ url_for('customer_place_order') }}" class="order-form" id="orderForm">
+                <!-- ======= Product Cards ======= -->
+                <div class="card order-section">
+                    <h2 class="section-title">Products</h2>
+<div class="product-cards-grid">
+                        {% for p in products %}
+                            <div class="product-card" onclick="addToCart({{ p.Product_id }})">
+                                <div class="product-card-img">
+                                    {% if p.image %}
+                                        <img src="{{ url_for('static', filename=p.image) }}" alt="{{ p.Product_Name }}">
+                                    {% else %}
+                                        <div class="product-card-noimg">{{ p.Product_Name[:1] }}</div>
+                                    {% endif %}
+                                </div>
+                                <div class="product-card-body">
+                                    <h3 class="product-card-name">{{ p.Product_Name }}</h3>
+                                    <p class="product-card-price">GHS {{ p.UnitPrice }}</p>
+                                    <p class="product-card-stock">In stock: {{ p.StockQuantity }}</p>
+                                </div>
+                                <span class="product-card-add">+ Add to Cart</span>
+                            </div>
+                        {% else %}
+                            <p class="empty-message">No products available.</p>
+                        {% endfor %}
+                    </div>
+                </div>
+
+                <!-- ======= Cart ======= -->
+                <div class="card order-section">
+                    <div class="table-header">
+                        <h2 class="section-title">Your Cart</h2>
+                        <span class="user-badge" id="cartCount">0 items</span>
+                    </div>
+                    <div id="cartLines">
+                        <!-- Cart lines are added dynamically via JavaScript -->
+                    </div>
+                    <p id="emptyCart" class="empty-message">Your cart is empty. Click on products above to add them.</p>
+                    <div class="order-total">
+                        <span class="order-total-label">Order Total</span>
+                        <span class="order-total-value" id="orderTotal">GHS 0.00</span>
+                    </div>
+                </div>
+
+                <div class="form-actions">
+                    <button type="submit" class="btn btn-primary btn-lg">Place Order</button>
+                    <a href="{{ url_for('customer_home') }}" class="btn btn-outline">Cancel</a>
+                </div>
+            </form>
+        </main>
+    </div>
+
+    <footer class="site-footer">
+        &copy; 2025 Addo Richmond. All rights reserved.
+    </footer>
+
+<script>
+        // Product catalog loaded from the server (id -> name/price lookup).
+        const PRODUCTS = {
+            {% for p in products %}
+            {{ p.Product_id }}: { name: {{ p.Product_Name | tojson }}, price: {{ p.UnitPrice }} },
+            {% endfor %}
+        };
+
+        // Cart state: array of { id, name, price, qty }
+        let cart = [];
+
+        function addToCart(id) {
+            const product = PRODUCTS[id];
+            if (!product) return;
+            const existing = cart.find(item => item.id === id);
+            if (existing) {
+                existing.qty += 1;
+            } else {
+                cart.push({ id: id, name: product.name, price: product.price, qty: 1 });
+            }
+            renderCart();
+        }
+
+        function changeQty(id, delta) {
+            const item = cart.find(i => i.id === id);
+            if (!item) return;
+            item.qty += delta;
+            if (item.qty <= 0) {
+                cart = cart.filter(i => i.id !== id);
+            }
+            renderCart();
+        }
+
+        function removeItem(id) {
+            cart = cart.filter(i => i.id !== id);
+            renderCart();
+        }
+
+        function renderCart() {
+            const container = document.getElementById('cartLines');
+            const empty = document.getElementById('emptyCart');
+            const countEl = document.getElementById('cartCount');
+            const totalEl = document.getElementById('orderTotal');
+
+            container.innerHTML = '';
+            let totalCount = 0;
+            let total = 0;
+
+            cart.forEach(item => {
+                totalCount += item.qty;
+                total += item.price * item.qty;
+
+                const line = document.createElement('div');
+                line.className = 'cart-line';
+                line.innerHTML =
+                    '<div class="form-group"><label>Product</label>' +
+                    '<input type="hidden" name="product_id[]" value="' + item.id + '">' +
+                    '<input type="text" value="' + item.name + '" readonly style="background:var(--bg-white);font-weight:600;"></div>' +
+                    '<div class="form-group"><label>Quantity</label>' +
+                    '<div class="qty-control">' +
+                    '<button type="button" class="btn btn-outline btn-sm" onclick="changeQty(' + item.id + ', -1)">-</button>' +
+                    '<input type="number" name="quantity[]" class="qty-input" value="' + item.qty + '" min="1" readonly>' +
+                    '<button type="button" class="btn btn-outline btn-sm" onclick="changeQty(' + item.id + ', 1)">+</button>' +
+                    '</div></div>' +
+                    '<div class="form-group"><label>Subtotal</label>' +
+                    '<input type="text" class="line-subtotal" value="GHS ' + (item.price * item.qty).toFixed(2) + '" readonly></div>' +
+                    '<button type="button" class="btn btn-danger" onclick="removeItem(' + item.id + ')">Remove</button>';
+
+                container.appendChild(line);
+            });
+
+            countEl.textContent = totalCount + ' item' + (totalCount === 1 ? '' : 's');
+            totalEl.textContent = 'GHS ' + total.toFixed(2);
+            empty.style.display = cart.length === 0 ? 'block' : 'none';
+
+            // Track cart state for form validation
+            document.getElementById('orderForm').dataset.cartCount = cart.length;
+        }
+
+        // Prevent submitting an empty cart
+        document.getElementById('orderForm').addEventListener('submit', function(e) {
+            const count = parseInt(this.dataset.cartCount || '0', 10);
+            if (count === 0) {
+                e.preventDefault();
+                alert('Your cart is empty. Please add at least one product.');
+            }
+        });
+
+        renderCart();
+    </script>
+</body>
+</html>

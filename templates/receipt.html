@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Order Receipt - Addo Mart</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body class="receipt-body">
+    <div class="receipt-container">
+        <div class="receipt-brand">
+            <img src="{{ url_for('static', filename='logo.png') }}" alt="Addo Mart Logo" class="login-logo-img">
+            <h1>Addo Mart</h1>
+            <p>Order Receipt</p>
+        </div>
+
+        <div class="receipt-meta">
+            <p><strong>Order #:</strong> {{ order_id }}</p>
+            <p><strong>Date:</strong> {{ order_date }}</p>
+            <p><strong>Customer:</strong> {{ customer.First_Name }} {{ customer.Last_Name }}</p>
+            {% if customer.Phone %}<p><strong>Phone:</strong> {{ customer.Phone }}</p>{% endif %}
+        </div>
+
+        <table class="receipt-table">
+            <thead>
+                <tr>
+                    <th>Product</th>
+                    <th>Qty</th>
+                    <th>Price</th>
+                    <th>Subtotal</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for line in lines %}
+                    <tr>
+                        <td>{{ line.product_name }}</td>
+                        <td>{{ line.quantity }}</td>
+                        <td>GHS {{ "%.2f"|format(line.unit_price) }}</td>
+                        <td>GHS {{ "%.2f"|format(line.subtotal) }}</td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+
+        <div class="receipt-total">
+            <span>Total</span>
+            <span>GHS {{ "%.2f"|format(total) }}</span>
+        </div>
+
+        <p class="receipt-thanks">Thank you for shopping with Addo Mart!</p>
+
+        <div class="form-actions">
+            <button class="btn btn-primary" onclick="window.print()">Print Receipt</button>
+            <a href="{{ url_for('customer_home') }}" class="btn btn-outline">Back to Home</a>
+        </div>
+    </div>
+
+    <script>
+        // Auto-open the print dialog after the receipt renders.
+        window.onload = function() {
+            window.print();
+        };
+    </script>
+</body>
+</html>

@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Place Order - Addo Mart</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <!-- ======= Top Navigation ======= -->
+    <header class="topbar">
+        <div class="topbar-left">
+            <img src="{{ url_for('static', filename='logo.png') }}" alt="Addo Mart Logo" class="topbar-logo">
+            <span class="topbar-title">Addo Mart</span>
+        </div>
+        <div class="topbar-right">
+            <span class="user-badge">{{ username }}</span>
+            <a href="{{ url_for('logout') }}" class="btn btn-danger btn-sm">Logout</a>
+        </div>
+    </header>
+
+    <div class="layout">
+        <!-- ======= Sidebar ======= -->
+        <aside class="sidebar">
+            <h3 class="sidebar-heading">Navigation</h3>
+            <nav class="sidebar-nav">
+                <a href="{{ url_for('dashboard') }}" class="sidebar-link">Dashboard</a>
+                <a href="{{ url_for('place_order') }}" class="sidebar-link active">Place Order</a>
+                {% for t in ['Customer_information', 'Employee', 'Suppliers', 'Products', 'Orders', 'OrderDetails'] %}
+                    <a href="{{ url_for('view_table', table_name=t) }}" class="sidebar-link">
+                        {{ t }}
+                    </a>
+                {% endfor %}
+            </nav>
+        </aside>
+
+        <!-- ======= Main Content ======= -->
+        <main class="main-content">
+            <!-- Flash messages -->
+            {% with messages = get_flashed_messages(with_categories=true) %}
+                {% if messages %}
+                    <div class="flash-messages">
+                        {% for category, message in messages %}
+                            <div class="flash {{ category }}">{{ message }}</div>
+                        {% endfor %}
+                    </div>
+                {% endif %}
+            {% endwith %}
+
+            <div class="table-header">
+                <div>
+                    <h1 class="page-title">Place a New Order</h1>
+                    <p class="page-subtitle">Enter new customer details and add products to the cart.</p>
+                </div>
+                <a href="{{ url_for('dashboard') }}" class="btn btn-outline">Back to Dashboard</a>
+            </div>
+
+            <form method="POST" action="{{ url_for('place_order') }}" class="order-form" id="orderForm">
+                <!-- ======= New Customer Details ======= -->
+                <div class="card order-section">
+                    <h2 class="section-title">New Customer Details</h2>
+                    <div class="record-form">
+                        <div class="form-group">
+                            <label for="first_name">First Name *</label>
+                            <input type="text" id="first_name" name="first_name"
+                                   value="{{ form_values.get('first_name', '') }}" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="last_name">Last Name *</label>
+                            <input type="text" id="last_name" name="last_name"
+                                   value="{{ form_values.get('last_name', '') }}" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="phone">Phone</label>
+                            <input type="text" id="phone" name="phone"
+                                   value="{{ form_values.get('phone', '') }}">
+                        </div>
+                        <div class="form-group">
+                            <label for="email">Email</label>
+                            <input type="email" id="email" name="email"
+                                   value="{{ form_values.get('email', '') }}">
+                        </div>
+                        <div class="form-group">
+                            <label for="address">Address</label>
+                            <input type="text" id="address" name="address"
+                                   value="{{ form_values.get('address', '') }}">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ======= Order Info ======= -->
+                <div class="card order-section">
+                    <h2 class="section-title">Order Information</h2>
+                    <div class="record-form">
+                        <div class="form-group">
+                            <label for="employee_id">Employee *</label>
+                            <select id="employee_id" name="employee_id" required>
+                                <option value="">-- Select Employee --</option>
+                                {% for emp in employees %}
+                                    <option value="{{ emp.Employee_id }}"
+                                        {% if form_values.get('employee_id')|string == emp.Employee_id|string %}selected{% endif %}>
+                                        {{ emp.First_Name }} {{ emp.Last_Name }}
+                                    </option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="order_date">Order Date</label>
+                            <input type="date" id="order_date" name="order_date"
+                                   value="{{ form_values.get('order_date', '') }}">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ======= Cart ======= -->
+                <div class="card order-section">
+                    <div class="table-header">
+                        <h2 class="section-title">Products</h2>
+                        <button type="button" class="btn btn-primary" onclick="addLine()">+ Add Product</button>
+                    </div>
+                    <div id="cartLines">
+                        <div class="cart-line">
+                            <div class="form-group">
+                                <label>Product</label>
+                                <select name="product_id[]" class="product-select" onchange="updateLine(this)">
+                                    <option value="">-- Select Product --</option>
+                                    {% for p in products %}
+                                        <option value="{{ p.Product_id }}"
+                                                data-price="{{ p.UnitPrice }}">
+                                            {{ p.Product_Name }} (GHS {{ p.UnitPrice }})
+                                        </option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label>Quantity</label>
+                                <input type="number" name="quantity[]" class="qty-input"
+                                       min="1" value="1" oninput="updateLine(this)">
+                            </div>
+                            <div class="form-group">
+                                <label>Subtotal</label>
+                                <input type="text" class="line-subtotal" value="GHS 0.00" readonly>
+                            </div>
+                            <button type="button" class="btn btn-danger" onclick="removeLine(this)">Remove</button>
+                        </div>
+                    </div>
+                    <div class="order-total">
+                        <span class="order-total-label">Order Total</span>
+                        <span class="order-total-value" id="orderTotal">GHS 0.00</span>
+                    </div>
+                </div>
+
+                <div class="form-actions">
+                    <button type="submit" class="btn btn-primary btn-lg">Place Order</button>
+                    <a href="{{ url_for('dashboard') }}" class="btn btn-outline">Cancel</a>
+                </div>
+            </form>
+        </main>
+    </div>
+
+<footer class="site-footer">
+        &copy; 2026 Addo Richmond. All rights reserved.
+    </footer>
+
+    <!-- ======= Cart JavaScript ======= -->
+    <script>
+        function addLine() {
+            const container = document.getElementById('cartLines');
+            const firstLine = container.querySelector('.cart-line');
+            const newLine = firstLine.cloneNode(true);
+            newLine.querySelector('.product-select').value = '';
+            newLine.querySelector('.qty-input').value = '1';
+            const subtotal = newLine.querySelector('.line-subtotal');
+            subtotal.value = 'GHS 0.00';
+            container.appendChild(newLine);
+            recalcTotal();
+        }
+
+        function removeLine(btn) {
+            const container = document.getElementById('cartLines');
+            const lines = container.querySelectorAll('.cart-line');
+            if (lines.length === 1) {
+                // Reset the only remaining line instead of removing it.
+                const line = lines[0];
+                line.querySelector('.product-select').value = '';
+                line.querySelector('.qty-input').value = '1';
+                line.querySelector('.line-subtotal').value = 'GHS 0.00';
+            } else {
+                btn.closest('.cart-line').remove();
+            }
+            recalcTotal();
+        }
+
+        function updateLine(el) {
+            const line = el.closest('.cart-line');
+            const select = line.querySelector('.product-select');
+            const qty = parseInt(line.querySelector('.qty-input').value) || 0;
+            const price = parseFloat(select.options[select.selectedIndex].dataset.price) || 0;
+            const subtotal = (price * qty).toFixed(2);
+            line.querySelector('.line-subtotal').value = 'GHS ' + subtotal;
+            recalcTotal();
+        }
+
+        function recalcTotal() {
+            const container = document.getElementById('cartLines');
+            let total = 0;
+            container.querySelectorAll('.line-subtotal').forEach(function(input) {
+                const val = parseFloat(input.value.replace('GHS ', '')) || 0;
+                total += val;
+            });
+            document.getElementById('orderTotal').textContent = 'GHS ' + total.toFixed(2);
+        }
+    </script>
+</body>
+</html>

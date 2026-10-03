@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login - Addo Mart</title>
+<link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body class="login-body">
+    <div class="login-container">
+        <!-- Branding / icon area -->
+        <div class="login-logo">
+            <img src="{{ url_for('static', filename='logo.png') }}" alt="Addo Mart Logo" class="login-logo-img">
+            <h1>Addo Mart</h1>
+        </div>
+
+        <!-- Flash messages (success / error) -->
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                <div class="flash-messages">
+                    {% for category, message in messages %}
+                        <div class="flash {{ category }}">{{ message }}</div>
+                    {% endfor %}
+                </div>
+            {% endif %}
+        {% endwith %}
+
+        <!-- Login form -->
+        <form method="POST" action="{{ url_for('login', next=request.args.get('next')) }}" class="login-form">
+            {% if request.args.get('next') %}
+                <input type="hidden" name="next" value="{{ request.args.get('next') }}">
+            {% endif %}
+            <div class="form-group">
+                <label for="username">Username</label>
+                <input
+                    type="text"
+                    id="username"
+                    name="username"
+                    placeholder="Enter your username"
+                    required
+                    autofocus
+                >
+            </div>
+
+            <div class="form-group">
+                <label for="password">Password</label>
+                <input
+                    type="password"
+                    id="password"
+                    name="password"
+                    placeholder="Enter your password"
+                    required
+                >
+            </div>
+
+<button type="submit" class="btn btn-primary btn-block">Sign In</button>
+        </form>
+
+        <p style="text-align:center; margin-top:14px; font-size:13px; color:var(--text-muted);">
+            New customer?
+            <a href="{{ url_for('register') }}" style="color:var(--primary); font-weight:600;">Create an account</a>
+            &nbsp;|&nbsp;
+            <a href="{{ url_for('store') }}" style="color:var(--primary); font-weight:600;">Browse as guest</a>
+        </p>
+    </div>
+
+    <footer class="site-footer">
+        &copy; 2026 Addo Richmond. All rights reserved.
+    </footer>
+</body>
+</html>
+

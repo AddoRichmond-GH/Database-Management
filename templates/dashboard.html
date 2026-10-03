@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard - Addo Mart</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <!-- ======= Top Navigation ======= -->
+    <header class="topbar">
+        <div class="topbar-left">
+            <img src="{{ url_for('static', filename='logo.png') }}" alt="Addo Mart Logo" class="topbar-logo">
+            <span class="topbar-title">Addo Mart</span>
+        </div>
+        <div class="topbar-right">
+            <span class="user-badge">{{ username }}</span>
+            <a href="{{ url_for('logout') }}" class="btn btn-danger btn-sm">Logout</a>
+        </div>
+    </header>
+
+    <div class="layout">
+        <!-- ======= Sidebar ======= -->
+        <aside class="sidebar">
+            <h3 class="sidebar-heading">Tables</h3>
+            <nav class="sidebar-nav">
+                {% for table in tables %}
+                    <a href="{{ url_for('view_table', table_name=table) }}" class="sidebar-link">
+                        {{ table }}
+                    </a>
+                {% endfor %}
+            </nav>
+            <div class="sidebar-footer">
+                <a href="{{ url_for('dashboard') }}" class="sidebar-link active">Dashboard</a>
+            </div>
+        </aside>
+
+        <!-- ======= Main Content ======= -->
+        <main class="main-content">
+            <!-- Flash messages -->
+            {% with messages = get_flashed_messages(with_categories=true) %}
+                {% if messages %}
+                    <div class="flash-messages">
+                        {% for category, message in messages %}
+                            <div class="flash {{ category }}">{{ message }}</div>
+                        {% endfor %}
+                    </div>
+                {% endif %}
+            {% endwith %}
+
+            <h1 class="page-title">Dashboard</h1>
+            <p class="page-subtitle">Welcome back, {{ username }}! Here is a summary of your database.</p>
+
+            <!-- ======= Summary Cards ======= -->
+            <div class="cards-grid">
+                <div class="card stat-card">
+                    <div class="stat-value">{{ total_tables }}</div>
+                    <div class="stat-label">Total Tables</div>
+                </div>
+
+                <div class="card stat-card">
+                    <div class="stat-value">{{ total_records }}</div>
+                    <div class="stat-label">Total Records</div>
+                </div>
+
+                <div class="card stat-card">
+                    <div class="stat-value">{{ table_with_most or '—' }}</div>
+                    <div class="stat-label">Largest Table</div>
+                </div>
+
+                <div class="card stat-card">
+                    <div class="stat-value">Connected</div>
+                    <div class="stat-label">Database Status</div>
+                </div>
+            </div>
+
+            <!-- ======= Table Access Section ======= -->
+<!-- ======= Place Order CTA ======= -->
+            <div class="card place-order-cta">
+                <div>
+                    <h2 class="section-title">Place a Customer Order</h2>
+                    <p class="page-subtitle">Create an order for a brand-new customer by selecting products and quantities.</p>
+                </div>
+                <a href="{{ url_for('place_order') }}" class="btn btn-primary">Place Order</a>
+            </div>
+
+            <h2 class="section-title">Manage Database Tables</h2>
+            <div class="cards-grid">
+                {% for table in tables %}
+<a href="{{ url_for('view_table', table_name=table) }}" class="card table-card">
+                        <div class="table-card-header">
+                            <h3>{{ table }}</h3>
+                        </div>
+                        <p class="table-card-count">{{ record_counts.get(table, 0) }} records</p>
+                        <span class="btn btn-outline btn-sm">Open Table</span>
+                    </a>
+                {% endfor %}
+            </div>
+
+            <!-- ======= Recent Activity ======= -->
+            <div class="card recent-activity">
+                <h2 class="section-title">Recent Activity</h2>
+                {% if recent_activities %}
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>Table</th>
+                                <th>Record</th>
+                                <th>Action</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for activity in recent_activities %}
+                                <tr>
+                                    <td>{{ activity.table }}</td>
+                                    <td>{{ activity.record }}</td>
+                                    <td>
+                                        <a href="{{ url_for('edit_record', table_name=activity.table, record_id=activity.pk_value) }}"
+                                           class="btn btn-primary btn-sm">View / Edit</a>
+                                    </td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                {% else %}
+                    <p class="empty-message">No recent activity found.</p>
+                {% endif %}
+            </div>
+</main>
+    </div>
+
+    <footer class="site-footer">
+&copy; 2026 Addo Richmond. All rights reserved.
+    </footer>
+</body>
+</html>
+

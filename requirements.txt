@@ -1,0 +1,5 @@
+# Python dependencies required to run the Database GUI
+# Install them with:  pip install -r requirements.txt
+
+Flask==3.0.3
+mysql-connector-python==9.0.0

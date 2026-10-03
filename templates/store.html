@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Addo Mart - Online Store</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body class="website-body">
+    <!-- ======= Website Navigation Bar ======= -->
+    <nav class="website-navbar">
+        <div class="nav-brand">
+            <a href="{{ url_for('store') }}">
+                <img src="{{ url_for('static', filename='logo.png') }}" alt="Addo Mart Logo" class="nav-logo">
+                <span class="nav-brand-name">Addo Mart</span>
+            </a>
+        </div>
+        <ul class="nav-links">
+            <li><a href="{{ url_for('store') }}" class="nav-link active">Home</a></li>
+            <li><a href="{{ url_for('store') }}#products" class="nav-link">Products</a></li>
+            <li><a href="{{ url_for('about') }}" class="nav-link">About Us</a></li>
+            <li><a href="{{ url_for('contact') }}" class="nav-link">Contact</a></li>
+        </ul>
+        <div class="nav-actions">
+            {% if username %}
+                <span class="user-badge">{{ username }}</span>
+                <a href="{{ url_for('customer_place_order') }}" class="btn btn-primary btn-sm">Checkout</a>
+                <a href="{{ url_for('logout') }}" class="btn btn-outline btn-sm">Logout</a>
+            {% else %}
+                <a href="{{ url_for('login') }}" class="btn btn-outline btn-sm">Log In</a>
+                <a href="{{ url_for('register') }}" class="btn btn-primary btn-sm">Sign Up</a>
+            {% endif %}
+        </div>
+    </nav>
+
+    <!-- ======= Hero Banner ======= -->
+    <section class="hero-banner">
+        <div class="hero-content">
+            <h1>Welcome to Addo Mart</h1>
+            <p>Your one-stop shop for quality groceries, beverages, household items and more.</p>
+            <a href="#products" class="btn btn-primary btn-lg">Shop Now</a>
+        </div>
+    </section>
+
+    <main class="store-main">
+        <!-- Flash messages -->
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                <div class="flash-messages">
+                    {% for category, message in messages %}
+                        <div class="flash {{ category }}">{{ message }}</div>
+                    {% endfor %}
+                </div>
+            {% endif %}
+        {% endwith %}
+
+        {% if customer %}
+            <div class="welcome-strip">
+                <h2 class="page-title">Welcome, {{ customer.First_Name or username }}!</h2>
+                <p class="page-subtitle">You are signed in and ready to shop.</p>
+            </div>
+        {% endif %}
+
+        <!-- ======= Product Grid ======= -->
+        <section id="products" class="store-section">
+            <div class="store-section-header">
+                <h2 class="section-title">Our Products</h2>
+                <p class="page-subtitle">Browse our available products ({{ total_products }} items)</p>
+            </div>
+
+            <div class="product-cards-grid">
+                {% for p in products %}
+                    <div class="product-card">
+                        <div class="product-card-img">
+                            {% if p.image %}
+                                <img src="{{ url_for('static', filename=p.image) }}" alt="{{ p.Product_Name }}">
+                            {% else %}
+                                <div class="product-card-noimg">{{ p.Product_Name[:1] }}</div>
+                            {% endif %}
+                        </div>
+                        <div class="product-card-body">
+                            <h3 class="product-card-name">{{ p.Product_Name }}</h3>
+                            <p class="product-card-category">{{ p.Category }}</p>
+                            <p class="product-card-price">GHS {{ p.UnitPrice }}</p>
+                            <p class="product-card-stock">
+                                {% if p.StockQuantity > 0 %}
+                                    In stock: {{ p.StockQuantity }}
+                                {% else %}
+                                    Out of stock
+                                {% endif %}
+                            </p>
+                        </div>
+                        {% if username %}
+                            <a href="{{ url_for('customer_place_order') }}"
+                               class="product-card-add">Buy Now</a>
+                        {% else %}
+                            <a href="{{ url_for('login') }}"
+                               class="product-card-add">Buy Now</a>
+                        {% endif %}
+                    </div>
+                {% else %}
+                    <p class="empty-message">No products available at the moment. Please check back soon.</p>
+                {% endfor %}
+            </div>
+        </section>
+
+        {% if username %}
+        <!-- ======= My Orders (visible to logged-in customers) ======= -->
+        <section id="orders" class="store-section">
+            <div class="store-section-header">
+                <h2 class="section-title">My Orders</h2>
+                <p class="page-subtitle">Your recent orders at Addo Mart.</p>
+            </div>
+
+            <div class="card">
+                <div class="table-wrapper">
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>Order ID</th>
+                                <th>Date</th>
+                                <th>Items</th>
+                                <th>Total</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for o in orders %}
+                                <tr>
+                                    <td>{{ o.Order_id }}</td>
+                                    <td>{{ o.OrderDate }}</td>
+                                    <td>{{ o.line_count }}</td>
+                                    <td>GHS {{ o.TotalAmount }}</td>
+                                </tr>
+                            {% else %}
+                                <tr><td colspan="4" class="empty-message">You have no orders yet.</td></tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+        {% endif %}
+
+        <!-- ======= Why Shop With Us ======= -->
+        <section class="store-section">
+            <h2 class="section-title">Why Shop With Us?</h2>
+            <div class="cards-grid">
+                <div class="card stat-card">
+                    <div class="stat-value">✓</div>
+                    <div class="stat-label">Quality Products</div>
+                </div>
+                <div class="card stat-card">
+                    <div class="stat-value">✓</div>
+                    <div class="stat-label">Affordable Prices</div>
+                </div>
+                <div class="card stat-card">
+                    <div class="stat-value">✓</div>
+                    <div class="stat-label">Fast Service</div>
+                </div>
+                <div class="card stat-card">
+                    <div class="stat-value">✓</div>
+                    <div class="stat-label">Customer Care</div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <footer class="website-footer">
+        <div class="footer-content">
+            <div class="footer-brand">
+                <img src="{{ url_for('static', filename='logo.png') }}" alt="Addo Mart Logo" class="nav-logo">
+                <span class="nav-brand-name">Addo Mart</span>
+                <p>Quality products, delivered with care.</p>
+            </div>
+            <div class="footer-links">
+                <h4>Quick Links</h4>
+                <a href="{{ url_for('store') }}">Home</a>
+                <a href="{{ url_for('about') }}">About Us</a>
+                <a href="{{ url_for('contact') }}">Contact</a>
+            </div>
+            <div class="footer-links">
+                <h4>Account</h4>
+                {% if username %}
+                    <a href="{{ url_for('logout') }}">Logout</a>
+                {% else %}
+                    <a href="{{ url_for('login') }}">Log In</a>
+                    <a href="{{ url_for('register') }}">Sign Up</a>
+                {% endif %}
+            </div>
+        </div>
+        <div class="footer-bottom">
+            &copy; 2026 Addo Richmond. All rights reserved.
+        </div>
+    </footer>
+</body>
+</html>
+

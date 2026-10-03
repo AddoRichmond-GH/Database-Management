@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Edit Record - {{ table_name }} - Addo Mart</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <!-- ======= Top Navigation ======= -->
+    <header class="topbar">
+        <div class="topbar-left">
+            <img src="{{ url_for('static', filename='logo.png') }}" alt="Addo Mart Logo" class="topbar-logo">
+            <span class="topbar-title">Addo Mart</span>
+        </div>
+        <div class="topbar-right">
+            <span class="user-badge">{{ username }}</span>
+            <a href="{{ url_for('logout') }}" class="btn btn-danger btn-sm">Logout</a>
+        </div>
+    </header>
+
+    <div class="layout">
+        <aside class="sidebar">
+            <h3 class="sidebar-heading">Tables</h3>
+            <nav class="sidebar-nav">
+<a href="{{ url_for('dashboard') }}" class="sidebar-link">Dashboard</a>
+                {% for t in ['Customer_information', 'Employee', 'Suppliers', 'Products', 'Orders', 'OrderDetails'] %}
+                    <a href="{{ url_for('view_table', table_name=t) }}"
+                       class="sidebar-link {% if t == table_name %}active{% endif %}">
+                        {{ t }}
+                    </a>
+                {% endfor %}
+            </nav>
+        </aside>
+
+        <main class="main-content">
+            <!-- Flash messages -->
+            {% with messages = get_flashed_messages(with_categories=true) %}
+                {% if messages %}
+                    <div class="flash-messages">
+                        {% for category, message in messages %}
+                            <div class="flash {{ category }}">{{ message }}</div>
+                        {% endfor %}
+                    </div>
+                {% endif %}
+            {% endwith %}
+
+            <div class="table-header">
+                <div>
+                    <h1 class="page-title">Edit Record</h1>
+                    <p class="page-subtitle">Table: {{ table_name }} | {{ pk }}: {{ record_id }}</p>
+                </div>
+<a href="{{ url_for('view_table', table_name=table_name) }}" class="btn btn-outline">Back to Table</a>
+            </div>
+
+            <div class="card form-card">
+                <form method="POST" action="{{ url_for('edit_record', table_name=table_name, record_id=record_id) }}" class="record-form">
+                    {% for col in columns %}
+                        <div class="form-group">
+                            <label for="{{ col }}">
+                                {{ col }}
+                                {% if col == pk %}
+                                    <span class="pk-badge">Primary Key</span>
+                                {% endif %}
+                            </label>
+
+                            {% if col == pk %}
+                                <!-- Primary key is read-only during edit -->
+                                <input type="text" id="{{ col }}" value="{{ record[col] }}" disabled class="readonly-field">
+                            {% elif col in fks and fk_options.get(col) %}
+                                <!-- Foreign key field -> dropdown with current value selected -->
+                                <select id="{{ col }}" name="{{ col }}" required>
+                                    <option value="">-- Select {{ col }} --</option>
+                                    {% for option in fk_options[col] %}
+                                        {% set ref_pk = option.keys()|list|first %}
+                                        {% set ref_label = option.keys()|list|last %}
+                                        <option value="{{ option[ref_pk] }}"
+                                            {% if option[ref_pk] == record[col] %}selected{% endif %}>
+                                            {{ option[ref_label] }}
+                                        </option>
+                                    {% endfor %}
+                                </select>
+                            {% else %}
+                                <!-- Regular field -> input with current value -->
+                                <input
+                                    type="{{ types.get(col, 'text') }}"
+                                    id="{{ col }}"
+                                    name="{{ col }}"
+                                    step="any"
+                                    value="{{ record[col] }}"
+                                    required
+                                >
+                            {% endif %}
+                        </div>
+                    {% endfor %}
+
+                    <div class="form-actions">
+<button type="submit" class="btn btn-primary">Update Record</button>
+                        <a href="{{ url_for('view_table', table_name=table_name) }}" class="btn btn-outline">Cancel</a>
+                    </div>
+                </form>
+            </div>
+</main>
+    </div>
+
+    <footer class="site-footer">
+&copy; 2026 Addo Richmond. All rights reserved.
+    </footer>
+</body>
+</html>
