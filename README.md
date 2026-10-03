@@ -1,228 +1,340 @@
 # Addo Mart Database Management System
 
-A user-friendly **web-based Database Management System** built with **Flask (Python)**, **HTML5**, and **CSS3**. This GUI connects to your **existing MySQL database** (`Addo_Mart_db`) and lets you perform full **CRUD** (Create, Read, Update, Delete) operations on every table — all through a clean, modern web interface.
+A web-based **Database Management System (DBMS)** built with **Flask, Python, MySQL, HTML5, CSS3, and Jinja2**.
 
-No external CSS frameworks (like Bootstrap) are used. Everything is hand-written in plain HTML and CSS.
+The application provides a web interface for managing the **Addo Mart** supermarket database, allowing authenticated users to perform CRUD operations, search and filter records, manage relational data, and interact with multiple MySQL tables through a responsive interface.
 
----
-
-## ✨ Features
-
-- **Login / Authentication** – Users are authenticated against the `login` table in the database.
-- **Dashboard** – Shows summary cards:
-  - Total number of tables
-  - Total number of records
-  - Largest table
-  - Database connection status
-  - Recent activity
-  - Buttons to access each table
-- **Table Management** – For every database table:
-  - View all records in a clean table format
-  - **Add** new records via forms
-  - **Edit** existing records
-  - **Delete** records with a confirmation dialog
-  - **Search** / filter records
-  - **Pagination** (10 records per page)
-- **Foreign Key Support** – Dropdowns show friendly names (e.g. a product's supplier name) instead of raw IDs.
-- **Beginner-Friendly Code** – Fully commented, easy to read, and easy to extend.
+> **Project Type:** Database Management / Flask Web Application
+> **Database:** MySQL
+> **Backend:** Python + Flask
+> **Frontend:** HTML5 + CSS3 + Jinja2
 
 ---
 
-## 📁 Project Structure
+## Features
 
+### Authentication
+
+* User login system backed by MySQL.
+* Session-based authentication.
+* Protected application routes.
+* Logout functionality.
+
+### Dashboard
+
+The dashboard provides an overview of the database, including:
+
+* Number of database tables
+* Total number of records
+* Largest table
+* Database connection status
+* Recent activity
+* Quick access to database tables
+
+### Database Management
+
+Users can manage records across the application's database tables through the web interface.
+
+Supported operations include:
+
+* **Create** — Add new records
+* **Read** — View existing records
+* **Update** — Edit records
+* **Delete** — Remove records
+* **Search** — Find records using search and filtering functionality
+* **Pagination** — Display records in manageable pages
+
+### Relational Database Support
+
+The application supports relationships between tables through foreign keys.
+
+Related records can be displayed using meaningful values rather than only raw foreign-key IDs.
+
+### User Interface
+
+* Custom HTML and CSS
+* Responsive layouts
+* No Bootstrap or external CSS framework
+* Jinja2 templates
+* Clean database-management interface
+
+---
+
+## Technologies Used
+
+| Technology                 | Purpose                     |
+| -------------------------- | --------------------------- |
+| **Python**                 | Application programming     |
+| **Flask**                  | Web framework               |
+| **MySQL**                  | Relational database         |
+| **mysql-connector-python** | MySQL database connectivity |
+| **HTML5**                  | Frontend structure          |
+| **CSS3**                   | Frontend styling            |
+| **Jinja2**                 | Server-side templating      |
+
+---
+
+## Database Structure
+
+The Addo Mart database contains the following main tables:
+
+| Table                  | Primary Key       | Purpose                       |
+| ---------------------- | ----------------- | ----------------------------- |
+| `Customer_information` | `Customer_id`     | Stores customer information   |
+| `Employee`             | `Employee_id`     | Stores employee information   |
+| `Suppliers`            | `Supplier_id`     | Stores supplier information   |
+| `Products`             | `Product_id`      | Stores product information    |
+| `Orders`               | `Order_id`        | Stores customer orders        |
+| `OrderDetails`         | `OrderDetails_id` | Stores individual order items |
+
+### Relationships
+
+```text
+Suppliers
+    |
+    └── Products
+          |
+          └── OrderDetails
+                    |
+                    └── Orders
+                          |
+                          └── Customer_information
 ```
-Database_GUI/
-│
-├── app.py               # Main Flask application (all routes & logic)
-├── database.py          # MySQL connection + authentication setup
-├── models.py            # Table schema definitions (easy to add new tables)
-├── requirements.txt     # Python dependencies
-│
-├── templates/           # HTML templates (Jinja2)
-│   ├── login.html       # Login page
-│   ├── dashboard.html   # Dashboard with summary cards
-│   ├── tables.html      # Table records view (search, pagination, actions)
-│   ├── add_record.html  # Form to add a new record
-│   └── edit_record.html # Form to edit an existing record
-│
+
+The database uses primary keys and foreign keys to maintain relationships between related records.
+
+---
+
+## Project Structure
+
+```text
+Database-Management/
+|
+├── app.py
+├── database.py
+├── models.py
+├── requirements.txt
+├── README.md
+|
 ├── static/
-│   └── style.css        # All styling (modern, responsive)
-│
-└── README.md            # This file
+|   └── style.css
+|
+└── templates/
+    ├── login.html
+    ├── dashboard.html
+    ├── tables.html
+    ├── add_record.html
+    └── edit_record.html
 ```
 
----
-
-## 🗃️ Database Used
-
-This project connects to the existing **`Addo_Mart_db`** MySQL database, which contains these tables:
-
-| Table | Primary Key | Description |
-|--------|-------------|-------------|
-| `Customer_information` | `Customer_id` | Store customers |
-| `Employee` | `Employee_id` | Store employees |
-| `Suppliers` | `Supplier_id` | Store suppliers |
-| `Products` | `Product_id` | Store products (FK → Suppliers) |
-| `Orders` | `Order_id` | Store orders (FK → Customers, Employees) |
-| `OrderDetails` | `OrderDetails_id` | Order line items (FK → Orders, Products) |
-
-The app discovers the tables automatically via `information_schema`, so it works with the tables present in your database.
+`__pycache__/` and other generated Python files are excluded from version control.
 
 ---
 
-## 🚀 How to Run Locally
+## Installation
 
-### 1. Prerequisites
-- **Python 3.8+** installed on your machine.
-- **MySQL** installed and running locally.
-- The **`Addo_Mart_db`** database already created (you can import the provided `Addo Mart.sql` file).
+### 1. Clone the Repository
 
-### 2. Install Dependencies
+```bash
+git clone https://github.com/AddoRichmond-GH/Database-Management.git
+```
 
-Open a terminal inside the `Database_GUI` folder and run:
+Navigate into the project:
+
+```bash
+cd Database-Management
+```
+
+### 2. Create a Virtual Environment
+
+```bash
+python -m venv venv
+```
+
+Activate it on Windows:
+
+```bash
+venv\Scripts\activate
+```
+
+### 3. Install Dependencies
 
 ```bash
 pip install -r requirements.txt
 ```
 
-This installs:
-- `Flask` – the web framework
-- `mysql-connector-python` – the MySQL driver
+### 4. Configure MySQL
 
-### 3. Configure the Database Connection
+Create or import the `Addo_Mart_db` database into your local MySQL server.
 
-Open **`database.py`** and update the `DB_CONFIG` dictionary with your MySQL credentials:
+Configure the database connection in `database.py` using your own local MySQL credentials.
 
-```python
-DB_CONFIG = {
-    "host": "localhost",          # Your MySQL host
-    "user": "root",               # Your MySQL username
-    "password": "your_password",  # Your MySQL password
-    "database": "Addo_Mart_db",   # Your existing database
-}
-```
+Do not commit real passwords, API keys, or other sensitive credentials to GitHub.
 
-### 4. Run the Application
+### 5. Start the Application
 
 ```bash
 python app.py
 ```
 
-You should see output similar to:
+The application should start on:
+
+```text
+http://127.0.0.1:5000
 ```
- * Running on http://127.0.0.1:5000
-```
 
-### 5. Open in Browser
-
-Go to **http://127.0.0.1:5000** in your browser.
-
-Log in with the default account:
-- **Username:** `admin`
-- **Password:** `admin123`
-
-> The first time the app runs, it automatically creates the `login` table (if it doesn't exist) and inserts this default admin user.
+Open that address in your browser.
 
 ---
 
-## 🔑 Changing the Default Login
+## Security Considerations
 
-The default admin credentials are created in `database.py` (`init_database()`). You can change them, or add more users by inserting rows into the `login` table:
+The application includes several security-conscious practices:
 
-```python
-INSERT INTO login (username, password) VALUES ('myusername', 'mypassword');
-```
+* Parameterized SQL queries are used for database operations.
+* Authentication is required before accessing protected routes.
+* Database credentials are kept out of the public repository.
+* A Flask secret key is used for session management.
 
----
+### Current Limitations
 
-## 🔧 How to Add a New Table
+This is primarily a learning and demonstration project, so additional security improvements would be required before production deployment.
 
-Adding a new table is very easy. Follow these steps:
+Examples include:
 
-1. **Create the table in MySQL** (if not already there).
-2. **Add its schema to `models.py`** by adding one entry to the `TABLE_SCHEMAS` dictionary.
-
-Example — adding a `Departments` table:
-
-```python
-"Departments": {
-    "columns": ["Department_id", "Department_Name", "Location"],
-    "pk": "Department_id",
-    "fks": {},
-    "types": {
-        "Department_id": "number",
-        "Department_Name": "text",
-        "Location": "text",
-    },
-},
-```
-
-That's it! The table will automatically appear on the dashboard and in the sidebar, with full CRUD + search + pagination support.
-
-### Schema explanation:
-- **`columns`** – Ordered list of column names (must match the MySQL table).
-- **`pk`** – The primary key column.
-- **`fks`** – Dict mapping foreign key columns to their referenced tables (used to build dropdowns). Empty `{}` if none.
-- **`types`** – Dict mapping each column to an HTML input type (`text`, `number`, `date`, `email`).
+* Hashing user passwords using `werkzeug.security` or `bcrypt`
+* Using environment variables for secrets
+* Implementing stronger password policies
+* Adding CSRF protection
+* Improving session security
+* Adding role-based access control
+* Applying additional input validation
+* Using a production-grade deployment configuration
 
 ---
 
-## 🧠 How Each File Works
+## Application Architecture
 
 ### `app.py`
-The heart of the application. Contains all Flask routes:
-- `GET/POST /` – Login
-- `GET /logout` – Logout
-- `GET /dashboard` – Dashboard summary
-- `GET /table/<table>` – View records (search + pagination)
-- `GET/POST /table/<table>/add` – Add record
-- `GET/POST /table/<table>/edit/<id>` – Edit record
-- `POST /table/<table>/delete/<id>` – Delete record
 
-All CRUD queries are **parameterized** (safe from SQL injection) and use the schema from `models.py`.
+The main Flask application.
+
+Responsible for:
+
+* Routing
+* Authentication flow
+* Dashboard
+* CRUD operations
+* Search and pagination
+* Form processing
+* Session handling
 
 ### `database.py`
-Handles the MySQL connection:
-- `DB_CONFIG` – your connection settings
-- `get_db()` – returns a fresh MySQL connection
-- `init_database()` – creates the `login` table + default admin user
-- `get_table_list()` – lists all tables in the connected database
+
+Responsible for database connectivity and database initialization.
+
+Main responsibilities include:
+
+* MySQL connection configuration
+* Creating database connections
+* Initializing authentication-related database structures
+* Retrieving database table information
 
 ### `models.py`
-Central place for all table definitions. This is what makes the app easy to extend. No changes needed in `app.py` when adding tables.
 
-### `templates/*.html`
-Jinja2 HTML templates. Each page is a separate template:
-- `login.html` – login form
-- `dashboard.html` – summary cards + table access buttons + recent activity
-- `tables.html` – the main data table with search, pagination, and edit/delete buttons
-- `add_record.html` – form for creating new records
-- `edit_record.html` – form for updating records (primary key is read-only)
+Contains the application's table schema definitions.
+
+This provides a centralized location for:
+
+* Column definitions
+* Primary keys
+* Foreign keys
+* Input types
+* Table relationships
+
+### `templates/`
+
+Contains the Jinja2 HTML templates used by the Flask application.
 
 ### `static/style.css`
-All styling for the app — modern, responsive, and professional. Organized with CSS variables for easy theme customization.
+
+Contains the application's custom CSS styling.
 
 ---
 
-## 🛡️ Security Notes
+## CRUD Operations
 
-- All SQL queries use **parameterized statements** to prevent SQL injection.
-- Routes are protected with a `login_required` decorator.
-- **Note:** For simplicity, passwords are stored in plain text. For a production system, store **hashed passwords** using a library like `bcrypt` or `werkzeug.security`.
-- The Flask `secret_key` should be changed to a random value before deploying publicly.
+The application implements the four fundamental database operations:
+
+| Operation  | Description                  |
+| ---------- | ---------------------------- |
+| **Create** | Add new database records     |
+| **Read**   | Retrieve and display records |
+| **Update** | Modify existing records      |
+| **Delete** | Remove records               |
+
+Example routes include:
+
+```text
+GET/POST /                       → Login
+GET      /logout                 → Logout
+GET      /dashboard              → Dashboard
+GET      /table/<table>          → View records
+GET/POST /table/<table>/add      → Add record
+GET/POST /table/<table>/edit/... → Edit record
+POST     /table/<table>/delete   → Delete record
+```
 
 ---
 
-## 🧪 Sample CRUD Operations the App Performs
+## What I Learned
 
-| Operation | SQL Query | Route |
-|-----------|-----------|-------|
-| **Create** | `INSERT INTO table (cols) VALUES (...)` | `/table/<table>/add` |
-| **Read** | `SELECT * FROM table WHERE ... LIMIT ... OFFSET ...` | `/table/<table>` |
-| **Update** | `UPDATE table SET col = ... WHERE pk = ...` | `/table/<table>/edit/<id>` |
-| **Delete** | `DELETE FROM table WHERE pk = ...` | `/table/<table>/delete/<id>` |
+This project provided practical experience with:
+
+* Relational database design
+* MySQL
+* SQL queries
+* Primary and foreign keys
+* CRUD operations
+* Python
+* Flask
+* Jinja2
+* HTML and CSS
+* Database connectivity
+* Authentication
+* Web application structure
+* Parameterized SQL queries
+* Git and GitHub
 
 ---
 
-## 📃 License
-This is a learning/demo project. Feel free to modify and use it as you wish.
+## Future Improvements
+
+Potential improvements for future versions include:
+
+* Password hashing
+* Role-based user permissions
+* Database analytics and charts
+* Advanced filtering
+* CSV/Excel export
+* Improved mobile responsiveness
+* CSRF protection
+* Cloud deployment
+* Automated testing
+* Audit logs
+
+---
+
+## Author
+
+**Richmond Addo**
+
+Cybersecurity Student | Python Developer | Database and Web Application Enthusiast
+
+GitHub: [AddoRichmond-GH](https://github.com/AddoRichmond-GH)
+
+---
+
+## License
+
+This project was created for educational and demonstration purposes.
